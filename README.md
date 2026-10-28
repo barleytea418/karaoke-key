@@ -6,4 +6,4 @@
 - 曲検索API：`api/search.py`(Hisatono・KeyTubeから音域を取得。Vercelのサーバーレス関数)
 - ローカル確認：`python3 server.py` → http://localhost:8790/
 - 検証(門)：`sh check.sh` で「OK」が出れば合格。`LIVE=1 sh check.sh` で実サイト検索も確認
-- 公開：Vercel(`npx vercel --prod`)
+- 公開：https://karaoke-key-peach.vercel.app(VercelがGitHubのmainを自動デプロイ。pushするだけで更新)
