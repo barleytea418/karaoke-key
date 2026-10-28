@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>カラオケキー提案</title>
+<meta name="description" content="自分の声の音域をマイクではかって、カラオケで歌いやすいキー(+/-)を提案します。登録不要・無料。">
+<meta name="theme-color" content="#0017c1">
+<meta property="og:title" content="カラオケキー提案"><meta property="og:description" content="声の音域をはかって、歌いやすいキーを提案します。登録不要・無料。"><meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A4%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+:root{--key:#0017c1;--key-h:#00118f;--key-a:#000060;--key-50:#e8f1fe;--key-200:#c5d7fb;
+--g900:#1a1a1a;--g800:#333;--g600:#666;--g420:#949494;--g50:#f2f2f2;--white:#fff;
+--ok:#197a4b;--ok-bg:#e6f5ec;--ng:#ce0000;--ng-bg:#fdeeee;--fal:#00769a;--r:12px;
+--spring:cubic-bezier(.2,.9,.25,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--white);color:var(--g800);font:16px/1.7 'Noto Sans JP',-apple-system,sans-serif;letter-spacing:.02em}
+header{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.75);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--g420)}
+header .in{max-width:680px;margin:auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+header h1{margin:0;font-size:20px;line-height:1.5;color:var(--g900);letter-spacing:0}
+.keypill{font-weight:700;color:var(--white);background:var(--key);border-radius:999px;padding:4px 14px;min-width:64px;text-align:center}
+main{max-width:680px;margin:auto;padding:8px 16px 64px}
+h2{font-size:22px;line-height:1.5;color:var(--g900);margin:0 0 4px;letter-spacing:0}
+.num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--key);color:var(--white);font-size:16px;margin-right:8px;vertical-align:2px}
+section{border:1px solid var(--g420);border-radius:var(--r);padding:24px;margin:24px 0;background:var(--white);
+ animation:rise .5s var(--spring) both}
+section:nth-of-type(2){animation-delay:.05s}section:nth-of-type(3){animation-delay:.1s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.help{color:var(--g600);margin:0 0 16px}
+button{font:inherit;font-weight:700;line-height:1;border-radius:8px;min-height:44px;padding:0 16px;cursor:pointer;
+ border:1px solid var(--key);background:var(--key);color:var(--white);transition:transform .1s ease-out,background-color .15s}
+button:hover{background:var(--key-h);text-decoration:underline}
+button:active{background:var(--key-a);transform:scale(.97)}
+button.sec{background:var(--white);color:var(--key)}
+button.sec:hover{background:var(--key-200)}
+button[aria-pressed=true]{background:var(--key-a);color:var(--white)}
+:focus-visible{outline:4px solid #000;outline-offset:2px;box-shadow:0 0 0 2px #ffd43d}
+select,input[type=search],input[type=text]{font:inherit;color:var(--g900);background:var(--white);border:1px solid var(--g420);border-radius:8px;min-height:44px;padding:0 12px}
+select:hover,input:hover{border-color:var(--g800)}
+input[type=checkbox]{width:24px;height:24px;accent-color:var(--key);vertical-align:-6px;margin-right:8px}
+.tuner{background:var(--g50);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:16px;border:1px solid transparent}
+.note{font-size:48px;font-weight:700;line-height:1.2;color:var(--g900);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.cent{color:var(--g600)}
+.meter{height:8px;background:var(--white);border:1px solid var(--g420);border-radius:4px;overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;background:var(--key);width:0;transition:width .08s linear}
+.steps{display:grid;gap:8px}
+.step{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--g420)}
+.step:first-child{border-top:0}
+.step.rec{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{background:var(--key-50)}}
+.status{min-height:1.7em;color:var(--g600)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.row label.l{width:6em;font-weight:700;color:var(--g900)}
+.row select{max-width:100%;min-width:0}
+.search{display:flex;gap:8px}.search input{flex:1;min-width:0}
+ul.results{list-style:none;margin:8px 0 16px;padding:0;border:1px solid var(--g420);border-radius:8px;overflow:hidden}
+ul.results:empty{display:none}
+ul.results li+li{border-top:1px solid var(--g420)}
+ul.results button{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;gap:8px;width:100%;padding:12px 16px;cursor:pointer;color:var(--g900);background:var(--white);transition:background-color .15s}
+ul.results button:hover{background:var(--key-50)}
+ul.results button:active{background:var(--key-200)}
+ul.results button:focus-visible{outline:4px solid #000;outline-offset:-4px;box-shadow:inset 0 0 0 6px #ffd43d}
+ul.results small{color:var(--g600);white-space:nowrap;text-align:right}
+.src{font-size:16px;color:var(--g600)} a{color:#00118f;text-decoration:underline} a:visited{color:#8b008b}
+.result{text-align:center}
+.big{font-size:64px;font-weight:700;line-height:1.4;color:var(--g900);letter-spacing:-.02em;transition:transform .35s var(--spring)}
+.big.bump{transform:scale(1.08)}
+.verdict{display:inline-flex;align-items:center;gap:8px;border-radius:8px;padding:8px 12px;font-weight:700;border:1px solid}
+.verdict.ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok)}
+.verdict.ng{color:var(--ng);background:var(--ng-bg);border-color:var(--ng)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--g800);margin-top:24px;text-align:left}
+.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;vertical-align:-3px;margin-right:4px;border:1px solid var(--g800)}
+.barlbl{text-align:left;font-weight:700;margin-top:8px;color:var(--g900)}
+.bar{position:relative;height:28px;background:var(--g50);border:1px solid var(--g420);border-radius:6px;margin:4px 0}
+.bar i{position:absolute;top:3px;bottom:3px;border-radius:4px;transition:left .45s var(--spring),width .45s var(--spring)}
+.bar i.chest{background:var(--key)}.bar i.fal{background:repeating-linear-gradient(45deg,var(--fal) 0 4px,#9fd8ea 4px 8px)}
+.bar i.song-ok{background:var(--ok)}.bar i.song-ng{background:var(--ng)}
+.h3{font-size:18px;color:var(--g900);margin:24px 0 4px;text-align:left}
+.octlbl{font-size:20px;font-weight:700;color:var(--key);min-height:1.5em}
+.vh{position:absolute;left:-9999px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px}
+.chip{background:var(--white);color:var(--g900);min-height:44px;padding:0}
+.chip.fit{border:2px solid var(--ok)}.chip.nofit{border:2px dashed var(--g420);color:var(--g600)}
+.chip:hover{background:var(--key-50)}.chip[aria-pressed=true]{background:var(--key);color:var(--white);border-style:solid;border-color:var(--key)}
+.mylist{list-style:none;margin:0;padding:0}
+.mylist li{display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--g420)}.mylist li:first-child{border-top:0}
+.li-main{flex:1;display:flex;justify-content:space-between;align-items:center;background:var(--white);color:var(--g900);border:1px solid transparent;text-align:left;font-weight:400}
+.li-main:hover{background:var(--key-50)}.li-main strong{font-size:20px;color:var(--key)}
+#lstatus button{margin-left:8px}
+footer{color:var(--g600);text-align:center}
+@media (max-width:767px){section{padding:16px}.step{grid-template-columns:1fr auto}.step>button{grid-column:1/-1}.big{font-size:48px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:opacity .2s!important}}
+@media (prefers-reduced-transparency:reduce){header{background:var(--white);backdrop-filter:none}}
+</style></head><body>
+<header><div class="in"><h1>カラオケキー提案</h1><span class="keypill" aria-live="polite" id="keyMini">±0</span></div></header>
+<main>
+<section aria-labelledby="h1s">
+<h2 id="h1s"><span class="num" aria-hidden="true">1</span>自分の音域</h2>
+<p class="help">「はかる」を押したら、その声を3秒伸ばして出してください。いちばん長く安定した音を記録します。</p>
+<div class="tuner"><div class="note" id="now" aria-live="off">—</div><div class="cent" id="cent">声を出すと音名が出ます</div><div class="meter" aria-hidden="true"><i id="vol"></i></div></div>
+<div class="meter" aria-hidden="true" style="margin-bottom:8px"><i id="prog" style="background:var(--ok)"></i></div>
+<div class="steps" id="steps"></div>
+<p class="status" id="status" aria-live="polite"></p>
+<div class="row"><button class="sec" id="tuner" aria-pressed="false">チューナーで精度を確かめる</button><button class="sec" id="resetMe" type="button">測定値を初期値に戻す</button></div>
+</section>
+
+<section aria-labelledby="h2s">
+<h2 id="h2s"><span class="num" aria-hidden="true">2</span>歌う曲</h2>
+<p class="help">曲名か歌手名で検索します。人が確認したHisatonoを先に、ない曲はKeyTube(約8万曲・自動解析)から出します。見つからない曲は下で音域を直接選べます。</p>
+<form class="search" id="sform" role="search"><label for="q" class="visually-hidden" style="position:absolute;left:-9999px">曲名・歌手名</label>
+<input type="search" id="q" placeholder="例：うっせぇわ、Ado" autocomplete="off"><button type="submit">検索</button></form>
+<p class="status" id="sstatus" aria-live="polite"></p>
+<ul class="results" id="results"></ul>
+<div class="row"><label class="l" for="title">曲名</label><input type="text" id="title" placeholder="任意"></div>
+<div class="row"><label class="l" for="songLow">最低音</label><span id="sLow"></span></div>
+<div class="row"><label class="l" for="songHigh">最高音</label><span id="sHigh"></span></div>
+<div class="row"><label><input type="checkbox" id="fal">最高音は裏声で歌ってもいい</label></div>
+<div class="row"><label class="l" for="octSel">オクターブ</label><select id="octSel"><option value="auto" selected>自動(収まらなければオク上・オク下も探す)</option><option value="0">原曲どおり</option><option value="-12">1オクターブ下で歌う(女性曲を男性が)</option><option value="12">1オクターブ上で歌う(男性曲を女性が)</option></select></div>
+<div class="row"><label class="l" for="margin">高音の余裕</label><select id="margin"><option value="0">ぎりぎりまで使う</option><option value="1">1半音残す</option><option value="2" selected>2半音残す(喉にやさしい)</option></select></div>
+<p class="src" id="src"></p>
+</section>
+
+<section aria-labelledby="h3s" class="result">
+<h2 id="h3s"><span class="num" aria-hidden="true">3</span>おすすめキー</h2>
+<div class="octlbl" id="octLbl"></div><div class="big" id="key">—</div>
+<div class="verdict" id="why"></div>
+<p class="help" id="keyNote" style="margin:8px 0 0"></p>
+<div class="row" style="justify-content:center"><button class="sec" id="playLow" type="button">最低音を鳴らす</button><button class="sec" id="playHigh" type="button">最高音を鳴らす</button><button class="sec" id="resetKey" type="button" hidden>おすすめに戻す</button></div>
+<h3 class="h3">ほかのキー</h3><p class="help" style="margin:0 0 8px">緑の枠は歌えるキー、点線は音域からはみ出すキー。押すと下のバーに反映されます。</p>
+<div class="chips" id="chips"></div>
+<div class="row" style="justify-content:center;margin-top:16px"><button id="addSong" type="button">この曲をマイリストに保存</button></div>
+<div class="legend" aria-hidden="true"><span><i style="background:var(--key)"></i>地声</span><span><i style="background:repeating-linear-gradient(45deg,var(--fal) 0 4px,#9fd8ea 4px 8px)"></i>裏声</span><span><i style="background:var(--ok)"></i>曲(収まる)</span><span><i style="background:var(--ng)"></i>曲(はみ出す)</span></div>
+<div class="barlbl">あなた</div><div class="bar" id="barMe"></div>
+<div class="barlbl">曲(キー変更後)</div><div class="bar" id="barSong"></div>
+</section>
+<section aria-labelledby="h4s">
+<h2 id="h4s"><span class="num" aria-hidden="true">4</span>マイリスト</h2>
+<p class="help" id="listEmpty">保存した曲とキーがここに並びます。カラオケで曲を入れる前に見返せます。</p>
+<ul class="mylist" id="mylist"></ul><p class="status" id="lstatus" aria-live="polite"></p>
+</section>
+<footer>測定値はこのブラウザにだけ保存されます。曲の音域データ：<a href="https://hisatono.com/tono/" target="_blank" rel="noopener">カラオケ音域 from Hisatono</a>・<a href="https://keytube.net/" target="_blank" rel="noopener">KeyTube</a></footer>
+</main>
+<script src="logic.js"></script>
+<script>
+const ALL=[];for(let m=33;m<=93;m++)ALL.push(m);
+const opt=(id,def)=>{const s=document.createElement('select');s.id=id;s.innerHTML=ALL.map(m=>`<option value="${m}"${m==def?' selected':''}>${dam(m)}</option>`).join('');return s};
+
+const STEPS=[['chestLow','地声のいちばん低い音',48],['chestHigh','地声のいちばん高い音',67],['falLow','裏声のいちばん低い音',62],['falHigh','裏声のいちばん高い音',76]];
+let me={};try{me=JSON.parse(localStorage.getItem('me')||'{}')}catch(e){}
+STEPS.forEach(([k,,d])=>{if(me[k]==null)me[k]=d});
+const save=()=>{try{localStorage.setItem('me',JSON.stringify(me))}catch(e){}};
+
+const stepsEl=document.getElementById('steps');
+STEPS.forEach(([k,name])=>{
+  const r=document.createElement('div');
+  r.className='step';r.innerHTML=`<label for="me_${k}">${name}</label>`;
+  const s=opt('me_'+k,me[k]);s.onchange=()=>{me[k]=+s.value;save();calc()};
+  const b=document.createElement('button');b.className='sec';b.textContent='はかる';b.onclick=()=>measure(k,s,r,b);
+  r.append(s,b);stepsEl.append(r);
+});
+document.getElementById('sLow').append(opt('songLow',53));
+document.getElementById('sHigh').append(opt('songHigh',68));
+['songLow','songHigh','fal'].forEach(id=>document.getElementById(id).onchange=()=>{selKey=null;calc()});
+
+// ---- 音程検出(自己相関) ----
+const CLARITY=0.85, RMS_MIN=0.01;
+let ctx,an,buf,stream,raf,onPitch;
+async function startMic(){
+  if(ctx)return;
+  stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  ctx=new AudioContext();an=ctx.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);
+  ctx.createMediaStreamSource(stream).connect(an);loop();
+}
+function stopMic(){cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());if(ctx)ctx.close();ctx=null;onPitch=null;now.textContent='—';cent.textContent='声を出すと音名が出ます';vol.style.width=0}
+function detect(){
+  an.getFloatTimeDomainData(buf);const n=buf.length;let rms=0;for(const v of buf)rms+=v*v;rms=Math.sqrt(rms/n);
+  document.getElementById('vol').style.width=Math.min(100,rms*800)+'%';
+  if(rms<RMS_MIN)return null;
+  const sr=ctx.sampleRate,minL=Math.floor(sr/1400),maxL=Math.floor(sr/60);
+  // 正規化自己相関(NSDF)
+  const nsdf=new Float32Array(maxL+2);
+  for(let l=minL;l<=maxL+1;l++){let a=0,e=0;for(let i=0;i<n-l;i++){a+=buf[i]*buf[i+l];e+=buf[i]*buf[i]+buf[i+l]*buf[i+l]}nsdf[l]=2*a/e}
+  let best=0;for(let l=minL;l<=maxL;l++)if(nsdf[l]>best)best=nsdf[l];
+  if(best<CLARITY)return null;
+  // 最大値の0.9倍を超える最初のピーク(オクターブ誤検出を防ぐ)
+  let L=-1;for(let l=minL+1;l<=maxL;l++)if(nsdf[l]>=best*0.9&&nsdf[l]>=nsdf[l-1]&&nsdf[l]>=nsdf[l+1]){L=l;break}
+  if(L<0)return null;
+  const a=nsdf[L-1],b=nsdf[L],c=nsdf[L+1],sh=(a-c)/(2*(a-2*b+c))||0;
+  return 69+12*Math.log2(sr/(L+sh)/440);
+}
+function loop(){const p=detect();const el=document.getElementById('now');
+  if(p!=null){const m=Math.round(p),c=Math.round((p-m)*100);el.textContent=dam(m);cent.textContent=`${c>=0?'+':''}${c} セント(${(440*2**((p-69)/12)).toFixed(1)}Hz)`;onPitch&&onPitch(p)}
+  raf=requestAnimationFrame(loop)}
+const st=document.getElementById('status');
+async function measure(k,sel,row,btn){
+  row.classList.add('rec');btn.textContent='聞いています…';prog.style.transition='none';prog.style.width='0';prog.offsetWidth;prog.style.transition='width 3s linear';prog.style.width='100%';st.textContent='声を伸ばしてください';
+  try{await startMic()}catch(e){st.textContent='マイクが使えません：'+e.message;row.classList.remove('rec');btn.textContent='はかる';return}
+  const hist=[];const t0=performance.now();
+  onPitch=p=>hist.push(p);
+  setTimeout(()=>{onPitch=null;
+    row.classList.remove('rec');btn.textContent='はかる';prog.style.transition='none';prog.style.width='0';
+    const m=stableNote(hist);
+    if(m==null){st.textContent='声を拾えませんでした。もう少し大きく、長めに出してください';return}
+    me[k]=m;sel.value=m;save();calc();st.textContent=`${dam(m)} を記録しました`;
+  },3000);
+}
+tuner.onclick=async()=>{if(ctx){stopMic();tuner.setAttribute('aria-pressed','false');tuner.textContent='チューナーで精度を確かめる';return}
+  try{await startMic();tuner.setAttribute('aria-pressed','true');tuner.textContent='チューナーを止める'}catch(e){st.textContent='マイクが使えません：'+e.message}};
+
+// ---- キー提案 ----
+let selKey=null;
+function calc(){
+  const pick=recommend(me,{low:+songLow.value,high:+songHigh.value},{fal:document.getElementById('fal').checked,margin:+margin.value,oct:octSel.value==='auto'?'auto':+octSel.value});
+  const oct=pick.oct,lo=+songLow.value+oct,hi=+songHigh.value+oct,all=pick.all,best=pick.best;
+  const cur=selKey==null?best:all.find(c=>c.k===selKey),k=cur.k;
+  const txt=keyText(k);
+  if(key.textContent!==txt){key.textContent=txt;key.classList.add('bump');setTimeout(()=>key.classList.remove('bump'),180)}
+  const ol=oct>0?'オク上 ':oct<0?'オク下 ':'';keyMini.textContent=ol+txt;octLbl.textContent=ol?ol.trim()+'で':'';
+  const ok=cur.over+cur.under===0;
+  why.className='verdict '+(ok?'ok':'ng');
+  why.innerHTML=ok?`<span aria-hidden="true">✓</span>${dam(lo+k)}〜${dam(hi+k)} で全部出せます`:
+    `<span aria-hidden="true">!</span>${cur.over?'高い所が'+cur.over+'半音':''}${cur.over&&cur.under?'、':''}${cur.under?'低い所が'+cur.under+'半音':''}足りません`;
+  keyNote.textContent=selKey==null?'いちばん原曲に近い、歌えるキーです':'選んだキーを表示中。「おすすめに戻す」で戻ります';
+  resetKey.hidden=selKey==null;
+  // 全キーの一覧
+  chips.innerHTML='';all.forEach(c=>{const b=document.createElement('button');b.type='button';const f=c.over+c.under===0;
+    b.className='chip '+(f?'fit':'nofit');b.setAttribute('aria-pressed',c.k===k);
+    b.innerHTML=`${c.k>0?'+':''}${c.k}<span class="vh">${f?' 歌える':' はみ出す'}</span>`;b.setAttribute('aria-label',`${c.k>0?'+':''}${c.k} ${f?'歌える':'はみ出す'}`);
+    b.onclick=()=>{selKey=c.k===best.k?null:c.k;calc()};chips.append(b)});
+  const x=m=>Math.max(0,(m-36)/(90-36)*100)+'%',w=(a,b)=>Math.max(1,(b-a)/(90-36)*100)+'%';
+  setBar(barMe,[['fal',me.falLow,me.falHigh],['chest',me.chestLow,me.chestHigh]]);
+  setBar(barSong,[[ok?'song-ok':'song-ng',lo+k,hi+k]]);
+  function setBar(el,segs){segs.forEach(([c,a,b],i)=>{let n=el.children[i];if(!n){n=document.createElement('i');el.append(n)}n.className=c;n.style.left=x(a);n.style.width=w(a,b)})}
+  window.__cur={k,lo,hi,ok,oct};
+}
+// ---- 音を鳴らす(キー変更後の最低音・最高音を確認) ----
+let actx;function tone(m,dur=1.2){actx=actx||new AudioContext();const o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime;
+  o.type='triangle';o.frequency.value=440*2**((m-69)/12);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.3,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g).connect(actx.destination);o.start(t);o.stop(t+dur)}
+playLow.onclick=()=>tone(__cur.lo+__cur.k);playHigh.onclick=()=>tone(__cur.hi+__cur.k);
+resetKey.onclick=()=>{selKey=null;calc()};
+['octSel','margin'].forEach(id=>document.getElementById(id).onchange=()=>{selKey=null;calc()});
+// ---- マイ曲リスト ----
+let list=[];try{list=JSON.parse(localStorage.getItem('songs')||'[]')}catch(e){}
+const saveList=()=>{try{localStorage.setItem('songs',JSON.stringify(list))}catch(e){}};
+function renderList(){mylist.innerHTML='';listEmpty.hidden=list.length>0;
+  list.forEach((it,i)=>{const li=document.createElement('li'),b=document.createElement('button'),d=document.createElement('button');
+    b.type='button';b.className='li-main';b.innerHTML='<span></span><strong></strong>';b.firstChild.textContent=it.title||'(曲名なし)';
+    b.lastChild.textContent=(it.oct>0?'オク上 ':it.oct<0?'オク下 ':'')+(it.k>0?'+':it.k<0?'':'±')+it.k;
+    b.onclick=()=>{title.value=it.title;songLow.value=it.lo;songHigh.value=it.hi;fal.checked=it.fal;octSel.value=String(it.oct||0);selKey=null;src.textContent='';calc();document.querySelector('.result').scrollIntoView({behavior:'smooth'})};
+    d.type='button';d.className='sec del';d.textContent='削除';d.setAttribute('aria-label',(it.title||'曲')+'を削除');
+    d.onclick=()=>{const old=list.splice(i,1)[0];saveList();renderList();undo(old,i)};
+    li.append(b,d);mylist.append(li)})}
+function undo(old,i){lstatus.innerHTML='';lstatus.append(`「${old.title||'曲'}」を削除しました `);const u=document.createElement('button');u.type='button';u.className='sec';u.textContent='元に戻す';
+  u.onclick=()=>{list.splice(i,0,old);saveList();renderList();lstatus.textContent='元に戻しました'};lstatus.append(u)}
+addSong.onclick=()=>{const it={title:title.value.trim(),lo:+songLow.value,hi:+songHigh.value,fal:fal.checked,oct:__cur.oct,k:__cur.k};
+  const j=list.findIndex(x=>x.title&&x.title===it.title);if(j>=0)list[j]=it;else list.unshift(it);saveList();renderList();lstatus.textContent=`「${it.title||'曲'}」を保存しました`};
+renderList();
+// ---- 測定値のリセット ----
+resetMe.onclick=()=>{if(!confirm('測った音域を初期値に戻しますか？'))return;STEPS.forEach(([k,,d])=>{me[k]=d;document.getElementById('me_'+k).value=d});save();calc();st.textContent='初期値に戻しました'};
+calc();
+
+// ---- 曲検索(/api/search 経由でHisatono・KeyTube) ----
+sform.onsubmit=async e=>{e.preventDefault();const q=document.getElementById('q').value.trim();if(!q)return;
+  results.innerHTML='';sstatus.textContent='検索しています…';
+  try{const r=await fetch('/api/search?q='+encodeURIComponent(q));const d=await r.json();
+    if(!r.ok)throw new Error(d.error||r.status);
+    const items=d.filter(a=>toMidi(a.low)!=null&&toMidi(a.high)!=null);
+    sstatus.textContent=items.length?`${items.length}件見つかりました。選ぶと音域が入ります`:'見つかりませんでした。音域を直接選んでください';
+    items.forEach(a=>{const li=document.createElement('li'),b=document.createElement('button');b.type='button';
+      b.innerHTML=`<span></span><small>${a.low}〜${a.high}<br></small>`;b.firstChild.textContent=a.title;b.lastChild.append(a.source||'');
+      b.onclick=()=>pick(a);li.append(b);results.append(li)});
+  }catch(err){sstatus.textContent='検索できませんでした('+err.message+')。時間をおいてもう一度試すか、音域を直接選んでください'}};
+function pick(a){title.value=a.title;songLow.value=Math.min(93,Math.max(33,toMidi(a.low)));songHigh.value=Math.min(93,Math.max(33,toMidi(a.high)));
+  src.innerHTML='';const l=document.createElement('a');l.href=a.url;l.target='_blank';l.rel='noopener';l.textContent=a.title+' の音域ページ';src.append(`出典(${a.source||''})：`,l);
+  results.innerHTML='';sstatus.textContent=`「${a.title}」を選びました`;selKey=null;calc();
+  document.querySelector('.result').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})}
+calc();
+</script></body></html>

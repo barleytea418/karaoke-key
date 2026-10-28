@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>カラオケキー提案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+:root{--key:#0017c1;--key-h:#00118f;--key-a:#000060;--key-50:#e8f1fe;--key-200:#c5d7fb;
+--g900:#1a1a1a;--g800:#333;--g600:#666;--g420:#949494;--g50:#f2f2f2;--white:#fff;
+--ok:#197a4b;--ok-bg:#e6f5ec;--ng:#ce0000;--ng-bg:#fdeeee;--fal:#00769a;--r:12px;
+--spring:cubic-bezier(.2,.9,.25,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--white);color:var(--g800);font:16px/1.7 'Noto Sans JP',-apple-system,sans-serif;letter-spacing:.02em}
+header{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.75);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--g420)}
+header .in{max-width:680px;margin:auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+header h1{margin:0;font-size:20px;line-height:1.5;color:var(--g900);letter-spacing:0}
+.keypill{font-weight:700;color:var(--white);background:var(--key);border-radius:999px;padding:4px 14px;min-width:64px;text-align:center}
+main{max-width:680px;margin:auto;padding:8px 16px 64px}
+h2{font-size:22px;line-height:1.5;color:var(--g900);margin:0 0 4px;letter-spacing:0}
+.num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--key);color:var(--white);font-size:16px;margin-right:8px;vertical-align:2px}
+section{border:1px solid var(--g420);border-radius:var(--r);padding:24px;margin:24px 0;background:var(--white);
+ animation:rise .5s var(--spring) both}
+section:nth-of-type(2){animation-delay:.05s}section:nth-of-type(3){animation-delay:.1s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.help{color:var(--g600);margin:0 0 16px}
+button{font:inherit;font-weight:700;line-height:1;border-radius:8px;min-height:44px;padding:0 16px;cursor:pointer;
+ border:1px solid var(--key);background:var(--key);color:var(--white);transition:transform .1s ease-out,background-color .15s}
+button:hover{background:var(--key-h);text-decoration:underline}
+button:active{background:var(--key-a);transform:scale(.97)}
+button.sec{background:var(--white);color:var(--key)}
+button.sec:hover{background:var(--key-200)}
+button[aria-pressed=true]{background:var(--key-a);color:var(--white)}
+:focus-visible{outline:4px solid #000;outline-offset:2px;box-shadow:0 0 0 2px #ffd43d}
+select,input[type=search],input[type=text]{font:inherit;color:var(--g900);background:var(--white);border:1px solid var(--g420);border-radius:8px;min-height:44px;padding:0 12px}
+select:hover,input:hover{border-color:var(--g800)}
+input[type=checkbox]{width:24px;height:24px;accent-color:var(--key);vertical-align:-6px;margin-right:8px}
+.tuner{background:var(--g50);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:16px;border:1px solid transparent}
+.note{font-size:48px;font-weight:700;line-height:1.2;color:var(--g900);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.cent{color:var(--g600)}
+.meter{height:8px;background:var(--white);border:1px solid var(--g420);border-radius:4px;overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;background:var(--key);width:0;transition:width .08s linear}
+.steps{display:grid;gap:8px}
+.step{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--g420)}
+.step:first-child{border-top:0}
+.step.rec{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{background:var(--key-50)}}
+.status{min-height:1.7em;color:var(--g600)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.row label.l{width:6em;font-weight:700;color:var(--g900)}
+.search{display:flex;gap:8px}.search input{flex:1;min-width:0}
+ul.results{list-style:none;margin:8px 0 16px;padding:0;border:1px solid var(--g420);border-radius:8px;overflow:hidden}
+ul.results:empty{display:none}
+ul.results li+li{border-top:1px solid var(--g420)}
+ul.results button{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;gap:8px;width:100%;padding:12px 16px;cursor:pointer;color:var(--g900);background:var(--white);transition:background-color .15s}
+ul.results button:hover{background:var(--key-50)}
+ul.results button:active{background:var(--key-200)}
+ul.results button:focus-visible{outline:4px solid #000;outline-offset:-4px;box-shadow:inset 0 0 0 6px #ffd43d}
+ul.results small{color:var(--g600);white-space:nowrap}
+.src{font-size:16px;color:var(--g600)} a{color:#00118f;text-decoration:underline} a:visited{color:#8b008b}
+.result{text-align:center}
+.big{font-size:64px;font-weight:700;line-height:1.4;color:var(--g900);letter-spacing:-.02em;transition:transform .35s var(--spring)}
+.big.bump{transform:scale(1.08)}
+.verdict{display:inline-flex;align-items:center;gap:8px;border-radius:8px;padding:8px 12px;font-weight:700;border:1px solid}
+.verdict.ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok)}
+.verdict.ng{color:var(--ng);background:var(--ng-bg);border-color:var(--ng)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--g800);margin-top:24px;text-align:left}
+.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;vertical-align:-3px;margin-right:4px;border:1px solid var(--g800)}
+.barlbl{text-align:left;font-weight:700;margin-top:8px;color:var(--g900)}
+.bar{position:relative;height:28px;background:var(--g50);border:1px solid var(--g420);border-radius:6px;margin:4px 0}
+.bar i{position:absolute;top:3px;bottom:3px;border-radius:4px;transition:left .45s var(--spring),width .45s var(--spring)}
+.bar i.chest{background:var(--key)}.bar i.fal{background:repeating-linear-gradient(45deg,var(--fal) 0 4px,#9fd8ea 4px 8px)}
+.bar i.song-ok{background:var(--ok)}.bar i.song-ng{background:var(--ng)}
+footer{color:var(--g600);text-align:center}
+@media (max-width:767px){section{padding:16px}.step{grid-template-columns:1fr auto}.step>button{grid-column:1/-1}.big{font-size:48px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:opacity .2s!important}}
+@media (prefers-reduced-transparency:reduce){header{background:var(--white);backdrop-filter:none}}
+</style></head><body>
+<header><div class="in"><h1>カラオケキー提案</h1><span class="keypill" aria-live="polite" id="keyMini">±0</span></div></header>
+<main>
+<section aria-labelledby="h1s">
+<h2 id="h1s"><span class="num" aria-hidden="true">1</span>自分の音域</h2>
+<p class="help">「はかる」を押したら、その声を3秒伸ばして出してください。いちばん長く安定した音を記録します。</p>
+<div class="tuner"><div class="note" id="now" aria-live="off">—</div><div class="cent" id="cent">声を出すと音名が出ます</div><div class="meter" aria-hidden="true"><i id="vol"></i></div></div>
+<div class="steps" id="steps"></div>
+<p class="status" id="status" aria-live="polite"></p>
+<div class="row"><button class="sec" id="tuner" aria-pressed="false">チューナーで精度を確かめる</button></div>
+</section>
+
+<section aria-labelledby="h2s">
+<h2 id="h2s"><span class="num" aria-hidden="true">2</span>歌う曲</h2>
+<p class="help">曲名か歌手名で検索します。見つからない曲は下で音域を直接選べます。</p>
+<form class="search" id="sform" role="search"><label for="q" class="visually-hidden" style="position:absolute;left:-9999px">曲名・歌手名</label>
+<input type="search" id="q" placeholder="例：うっせぇわ、Ado" autocomplete="off"><button type="submit">検索</button></form>
+<p class="status" id="sstatus" aria-live="polite"></p>
+<ul class="results" id="results"></ul>
+<div class="row"><label class="l" for="title">曲名</label><input type="text" id="title" placeholder="任意"></div>
+<div class="row"><label class="l" for="songLow">最低音</label><span id="sLow"></span></div>
+<div class="row"><label class="l" for="songHigh">最高音</label><span id="sHigh"></span></div>
+<div class="row"><label><input type="checkbox" id="fal">最高音は裏声で歌ってもいい</label></div>
+<p class="src" id="src"></p>
+</section>
+
+<section aria-labelledby="h3s" class="result">
+<h2 id="h3s"><span class="num" aria-hidden="true">3</span>おすすめキー</h2>
+<div class="big" id="key">—</div>
+<div class="verdict" id="why"></div>
+<div class="legend" aria-hidden="true"><span><i style="background:var(--key)"></i>地声</span><span><i style="background:repeating-linear-gradient(45deg,var(--fal) 0 4px,#9fd8ea 4px 8px)"></i>裏声</span><span><i style="background:var(--ok)"></i>曲(収まる)</span><span><i style="background:var(--ng)"></i>曲(はみ出す)</span></div>
+<div class="barlbl">あなた</div><div class="bar" id="barMe"></div>
+<div class="barlbl">曲(キー変更後)</div><div class="bar" id="barSong"></div>
+</section>
+<footer>測定値はこのブラウザにだけ保存されます。曲の音域データ：<a href="https://hisatono.com/tono/" target="_blank" rel="noopener">カラオケ音域 from Hisatono</a></footer>
+</main>
+<script>
+// DAM表記：Aで区切りが変わる。hiA=A4(440Hz)
+const OCT=['lowlow','low','mid1','mid2','hi','hihi'], NN=['A','A#','B','C','C#','D','D#','E','F','F#','G','G#'];
+const dam=m=>{const d=m-21;return OCT[Math.floor(d/12)]+NN[d%12]};
+const ALL=[];for(let m=33;m<=93;m++)ALL.push(m);
+const opt=(id,def)=>{const s=document.createElement('select');s.id=id;s.innerHTML=ALL.map(m=>`<option value="${m}"${m==def?' selected':''}>${dam(m)}</option>`).join('');return s};
+
+const STEPS=[['chestLow','地声のいちばん低い音',48],['chestHigh','地声のいちばん高い音',67],['falLow','裏声のいちばん低い音',62],['falHigh','裏声のいちばん高い音',76]];
+let me={};try{me=JSON.parse(localStorage.getItem('me')||'{}')}catch(e){}
+STEPS.forEach(([k,,d])=>{if(me[k]==null)me[k]=d});
+const save=()=>{try{localStorage.setItem('me',JSON.stringify(me))}catch(e){}};
+
+const stepsEl=document.getElementById('steps');
+STEPS.forEach(([k,name])=>{
+  const r=document.createElement('div');
+  r.className='step';r.innerHTML=`<label for="me_${k}">${name}</label>`;
+  const s=opt('me_'+k,me[k]);s.onchange=()=>{me[k]=+s.value;save();calc()};
+  const b=document.createElement('button');b.className='sec';b.textContent='はかる';b.onclick=()=>measure(k,s,r,b);
+  r.append(s,b);stepsEl.append(r);
+});
+document.getElementById('sLow').append(opt('songLow',53));
+document.getElementById('sHigh').append(opt('songHigh',68));
+['songLow','songHigh','fal'].forEach(id=>document.getElementById(id).onchange=calc);
+
+// ---- 音程検出(自己相関) ----
+const CLARITY=0.85, RMS_MIN=0.01;
+let ctx,an,buf,stream,raf,onPitch;
+async function startMic(){
+  if(ctx)return;
+  stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  ctx=new AudioContext();an=ctx.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);
+  ctx.createMediaStreamSource(stream).connect(an);loop();
+}
+function stopMic(){cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());if(ctx)ctx.close();ctx=null;onPitch=null;now.textContent='—';cent.textContent='声を出すと音名が出ます';vol.style.width=0}
+function detect(){
+  an.getFloatTimeDomainData(buf);const n=buf.length;let rms=0;for(const v of buf)rms+=v*v;rms=Math.sqrt(rms/n);
+  document.getElementById('vol').style.width=Math.min(100,rms*800)+'%';
+  if(rms<RMS_MIN)return null;
+  const sr=ctx.sampleRate,minL=Math.floor(sr/1400),maxL=Math.floor(sr/60);
+  // 正規化自己相関(NSDF)
+  const nsdf=new Float32Array(maxL+2);
+  for(let l=minL;l<=maxL+1;l++){let a=0,e=0;for(let i=0;i<n-l;i++){a+=buf[i]*buf[i+l];e+=buf[i]*buf[i]+buf[i+l]*buf[i+l]}nsdf[l]=2*a/e}
+  let best=0;for(let l=minL;l<=maxL;l++)if(nsdf[l]>best)best=nsdf[l];
+  if(best<CLARITY)return null;
+  // 最大値の0.9倍を超える最初のピーク(オクターブ誤検出を防ぐ)
+  let L=-1;for(let l=minL+1;l<=maxL;l++)if(nsdf[l]>=best*0.9&&nsdf[l]>=nsdf[l-1]&&nsdf[l]>=nsdf[l+1]){L=l;break}
+  if(L<0)return null;
+  const a=nsdf[L-1],b=nsdf[L],c=nsdf[L+1],sh=(a-c)/(2*(a-2*b+c))||0;
+  return 69+12*Math.log2(sr/(L+sh)/440);
+}
+function loop(){const p=detect();const el=document.getElementById('now');
+  if(p!=null){const m=Math.round(p),c=Math.round((p-m)*100);el.textContent=dam(m);cent.textContent=`${c>=0?'+':''}${c} セント(${(440*2**((p-69)/12)).toFixed(1)}Hz)`;onPitch&&onPitch(p)}
+  raf=requestAnimationFrame(loop)}
+const st=document.getElementById('status');
+async function measure(k,sel,row,btn){
+  row.classList.add('rec');btn.textContent='聞いています…';st.textContent='声を伸ばしてください';
+  try{await startMic()}catch(e){st.textContent='マイクが使えません：'+e.message;row.classList.remove('rec');btn.textContent='はかる';return}
+  const hist=[];const t0=performance.now();
+  onPitch=p=>hist.push(p);
+  setTimeout(()=>{onPitch=null;
+    row.classList.remove('rec');btn.textContent='はかる';
+    if(hist.length<10){st.textContent='声を拾えませんでした。もう少し大きく、長めに出してください';return}
+    // 中央値付近で半音以内に収まる音が多い所＝安定した音
+    const ms=hist.map(Math.round),cnt={};ms.forEach(m=>cnt[m]=(cnt[m]||0)+1);
+    const m=+Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
+    me[k]=m;sel.value=m;save();calc();st.textContent=`${dam(m)} を記録しました`;
+  },3000);
+}
+tuner.onclick=async()=>{if(ctx){stopMic();tuner.setAttribute('aria-pressed','false');tuner.textContent='チューナーで精度を確かめる';return}
+  try{await startMic();tuner.setAttribute('aria-pressed','true');tuner.textContent='チューナーを止める'}catch(e){st.textContent='マイクが使えません：'+e.message}};
+
+// ---- キー提案 ----
+function calc(){
+  const lo=+songLow.value,hi=+songHigh.value,fal=document.getElementById('fal').checked;
+  const top=fal?Math.max(me.chestHigh,me.falHigh):me.chestHigh;
+  let best=null;
+  for(let k=-7;k<=7;k++){
+    const over=Math.max(0,hi+k-top),under=Math.max(0,me.chestLow-(lo+k));
+    // はみ出し量を最優先、次に原キーに近さ
+    const sc=(over+under)*100+Math.abs(k);
+    if(!best||sc<best.sc)best={k,sc,over,under};
+  }
+  const k=best.k;
+  const txt=(k>0?'+':k<0?'':'±')+k;
+  if(key.textContent!==txt){key.textContent=txt;keyMini.textContent=txt;key.classList.add('bump');setTimeout(()=>key.classList.remove('bump'),180)}
+  const ok=best.over+best.under===0;
+  why.className='verdict '+(ok?'ok':'ng');
+  why.innerHTML=ok?`<span aria-hidden="true">✓</span>${dam(lo+k)}〜${dam(hi+k)} で全部出せます`:
+    `<span aria-hidden="true">!</span>±7では収まりません(${best.over?'高い所が'+best.over+'半音':'低い所が'+best.under+'半音'}足りない)`;
+  const x=m=>Math.max(0,(m-36)/(90-36)*100)+'%',w=(a,b)=>Math.max(1,(b-a)/(90-36)*100)+'%';
+  setBar(barMe,[['fal',me.falLow,me.falHigh],['chest',me.chestLow,me.chestHigh]]);
+  setBar(barSong,[[ok?'song-ok':'song-ng',lo+k,hi+k]]);
+  function setBar(el,segs){segs.forEach(([c,a,b],i)=>{let n=el.children[i];if(!n){n=document.createElement('i');el.append(n)}n.className=c;n.style.left=x(a);n.style.width=w(a,b)})}
+}
+calc();
+
+// ---- 曲検索(server.py経由でhisatono.com) ----
+const toMidi=n=>{const m=/^(lowlow|low|mid1|mid2|hihi|hi)([A-G]#?)$/i.exec(n.trim());if(!m)return null;
+  const o=OCT.indexOf(m[1].toLowerCase()),i=NN.indexOf(m[2].toUpperCase());return o<0||i<0?null:21+o*12+i};
+sform.onsubmit=async e=>{e.preventDefault();const q=document.getElementById('q').value.trim();if(!q)return;
+  results.innerHTML='';sstatus.textContent='検索しています…';
+  try{const r=await fetch('/api/search?q='+encodeURIComponent(q));const d=await r.json();
+    if(!r.ok)throw new Error(d.error||r.status);
+    const items=d.filter(a=>toMidi(a.low)!=null&&toMidi(a.high)!=null);
+    sstatus.textContent=items.length?`${items.length}件見つかりました。選ぶと音域が入ります`:'見つかりませんでした。音域を直接選んでください';
+    items.forEach(a=>{const li=document.createElement('li'),b=document.createElement('button');b.type='button';
+      b.innerHTML=`<span></span><small>${a.low}〜${a.high}</small>`;b.firstChild.textContent=a.title;
+      b.onclick=()=>pick(a);li.append(b);results.append(li)});
+  }catch(err){sstatus.textContent='検索できませんでした('+err.message+')。server.py で起動しているか確認してください'}};
+function pick(a){title.value=a.title;songLow.value=Math.min(93,Math.max(33,toMidi(a.low)));songHigh.value=Math.min(93,Math.max(33,toMidi(a.high)));
+  src.innerHTML='';const l=document.createElement('a');l.href=a.url;l.target='_blank';l.rel='noopener';l.textContent=a.title+' の音域ページ';src.append('出典：',l);
+  results.innerHTML='';sstatus.textContent=`「${a.title}」を選びました`;calc();
+  document.querySelector('.result').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})}
+calc();
+</script></body></html>
