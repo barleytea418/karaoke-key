@@ -140,7 +140,7 @@ footer a{color:var(--mu)}
 <div class="hero"><h2>あなたの声に、<br><em>ちょうどいいキー</em>を。</h2><p>音域をはかって曲をえらぶだけ。登録不要・無料。</p></div>
 <section aria-labelledby="h1s">
 <h2 class="sh" id="h1s"><span class="num" aria-hidden="true">1</span>自分の音域をはかる</h2>
-<p class="help">「はかる」を押して、その声を3秒のばしてください。いちばん安定した音を記録します。</p>
+<p class="help">「はかる」を押したら、カードに書いてある声を3秒のばしてください。いちばん安定した音を記録します。</p>
 <div class="tuner" id="tunerBox"><div class="ring"><div class="note" id="now" aria-live="off">—</div></div><div class="cent" id="cent">声を出すと音名が出ます</div><div class="meter" aria-hidden="true"><i id="vol"></i></div><div class="meter" aria-hidden="true"><i id="prog" style="background:var(--ok)"></i></div></div>
 <div class="steps" id="steps"></div>
 <p class="status" id="status" aria-live="polite"></p>
@@ -149,7 +149,7 @@ footer a{color:var(--mu)}
 
 <section aria-labelledby="h2s">
 <h2 class="sh" id="h2s"><span class="num" aria-hidden="true">2</span>歌う曲をえらぶ</h2>
-<p class="help">曲名か歌手名で検索。見つからない曲は下で音域を直接えらべます。</p>
+<p class="help">曲名か歌手名で検索できます。見つからない曲は下で音域を直接えらべます。</p>
 <form class="search" id="sform" role="search"><label for="q" class="vh">曲名・歌手名</label>
 <input type="search" id="q" placeholder="うっせぇわ、Ado など" autocomplete="off"><button type="submit">検索</button></form>
 <p class="status" id="sstatus" aria-live="polite"></p>
@@ -265,7 +265,7 @@ function calc(){
   why.className='verdict '+(ok?'ok':'ng');
   why.innerHTML=ok?`<span aria-hidden="true">✓</span>${dam(lo+k)}〜${dam(hi+k)} で全部出せます`:
     `<span aria-hidden="true">!</span>${cur.over?'高い所が'+cur.over+'半音':''}${cur.over&&cur.under?'、':''}${cur.under?'低い所が'+cur.under+'半音':''}足りません`;
-  keyNote.textContent=selKey==null?'いちばん原曲に近い、歌えるキーです':'選んだキーを表示中。「おすすめに戻す」で戻ります';
+  keyNote.textContent=selKey==null?'いちばん原曲に近い、歌えるキーです':'選んだキーを表示しています。「おすすめに戻す」で戻ります';
   resetKey.hidden=selKey==null;
   // 全キーの一覧
   chips.innerHTML='';all.forEach(c=>{const b=document.createElement('button');b.type='button';const f=c.over+c.under===0;
