@@ -6,7 +6,7 @@ const fail=[];const ok=(c,msg)=>{console.log((c?'✔ ':'✖ ')+msg);if(!c)fail.p
   const srv=spawn('python3',['server.py'],{cwd:ROOT,stdio:'ignore'});
   for(let i=0;i<50;i++){try{await fetch(URL);break}catch{await new Promise(r=>setTimeout(r,100))}}
   const wav=path.join(os.tmpdir(),'karaoke_220.wav');execFileSync('python3',[path.join(__dirname,'make_tone.py'),'220',wav]);
-  const b=await chromium.launch({channel:'chrome',args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream','--use-file-for-fake-audio-capture='+wav]});
+  const b=await chromium.launch({executablePath:process.env.PW_CHROME||undefined,args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream','--use-file-for-fake-audio-capture='+wav]});
   try{
     const c=await b.newContext();await c.grantPermissions(['microphone']);const p=await c.newPage();
     const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>m.type()==='error'&&!m.text().includes('502')&&errs.push(m.text()));
@@ -39,7 +39,7 @@ const fail=[];const ok=(c,msg)=>{console.log((c?'✔ ':'✖ ')+msg);if(!c)fail.p
   // 低い男声〜高い女声の裏声まで、測定が半音ずれないか
   for(const [hz,midi] of [[98,43],[147,50],[392,67],[659,76],[880,81]]){
     const f=path.join(os.tmpdir(),`karaoke_${hz}.wav`);execFileSync('python3',[path.join(__dirname,'make_tone.py'),String(hz),f]);
-    const bb=await chromium.launch({channel:'chrome',args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream','--use-file-for-fake-audio-capture='+f]});
+    const bb=await chromium.launch({executablePath:process.env.PW_CHROME||undefined,args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream','--use-file-for-fake-audio-capture='+f]});
     try{const pp=await bb.newPage();await pp.goto(URL);await pp.locator('#steps .step').nth(0).locator('button').click();
       await pp.waitForFunction(()=>/記録しました|拾えません/.test(document.getElementById('status').textContent),null,{timeout:8000});
       const v=+await pp.inputValue('#me_chestLow');ok(v===midi,`${hz}Hz → 期待${midi} 測定${v}`)}finally{await bb.close()}
