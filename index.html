@@ -140,7 +140,7 @@ footer a{color:var(--mu)}
 <div class="hero"><h2>あなたの声に、<br><em>ちょうどいいキー</em>を。</h2><p>音域をはかって曲をえらぶだけ。登録不要・無料。</p></div>
 <section aria-labelledby="h1s">
 <h2 class="sh" id="h1s"><span class="num" aria-hidden="true">1</span>自分の音域をはかる</h2>
-<p class="help">「はかる」を押したら、カードに書いてある声を3秒のばしてください。いちばん安定した音を記録します。</p>
+<p class="help">「はかる」を押したら、少しずつ音を上げて(低い音は下げて)いってください。0.4秒保てた一番端の音を記録し、声を止めると自動で終わります。</p>
 <div class="tuner" id="tunerBox"><div class="ring"><div class="note" id="now" aria-live="off">—</div></div><div class="cent" id="cent">声を出すと音名が出ます</div><div class="meter" aria-hidden="true"><i id="vol"></i></div><div class="meter" aria-hidden="true"><i id="prog" style="background:var(--ok)"></i></div></div>
 <div class="steps" id="steps"></div>
 <p class="status" id="status" aria-live="polite"></p>
@@ -237,17 +237,27 @@ function loop(){const p=detect();const el=document.getElementById('now');
   if(p!=null){const m=Math.round(p),c=Math.round((p-m)*100);el.textContent=dam(m);cent.textContent=`${c>=0?'+':''}${c} セント(${(440*2**((p-69)/12)).toFixed(1)}Hz)`;onPitch&&onPitch(p)}
   raf=requestAnimationFrame(loop)}
 const st=document.getElementById('status');
+let stopNow=null;
 async function measure(k,sel,row,btn){
-  row.classList.add('rec');btn.textContent='聞いています…';prog.style.transition='none';prog.style.width='0';prog.offsetWidth;prog.style.transition='width 3s linear';prog.style.width='100%';st.textContent='声を伸ばしてください';
-  try{await startMic()}catch(e){st.textContent='マイクが使えません：'+e.message;row.classList.remove('rec');btn.textContent='はかる';return}
-  const hist=[];const t0=performance.now();
-  onPitch=p=>hist.push(p);
-  setTimeout(()=>{onPitch=null;
-    row.classList.remove('rec');btn.textContent='はかる';prog.style.transition='none';prog.style.width='0';
-    const m=stableNote(hist);
-    if(m==null){st.textContent='声を拾えませんでした。もう少し大きく、長めに出してください';return}
-    me[k]=m;sel.value=m;save();calc();st.textContent=`${dam(m)} を記録しました`;
-  },3000);
+  if(stopNow){stopNow();return}
+  const dir=/High$/.test(k)?1:-1,HOLD=24;// 約0.4秒
+  row.classList.add('rec');prog.style.transition='none';prog.style.width='0';
+  st.textContent=dir>0?'低めから少しずつ上げて、出なくなったら声を止めてください':'高めから少しずつ下げて、出なくなったら声を止めてください';
+  try{await startMic()}catch(e){st.textContent='マイクが使えません：'+e.message;row.classList.remove('rec');return}
+  let best=null,cur=null,run=0,last=performance.now();const t0=performance.now();
+  btn.textContent='止める';
+  const finish=()=>{onPitch=null;stopNow=null;clearInterval(iv);
+    row.classList.remove('rec');btn.textContent='はかる';prog.style.width='0';
+    if(best==null){st.textContent='声を拾えませんでした。もう少し大きく、1音を少し長めに出してください';return}
+    me[k]=best;sel.value=best;save();calc();st.textContent=`${dam(best)} を記録しました`};
+  stopNow=finish;
+  onPitch=p=>{last=performance.now();const m=Math.round(p);if(m===cur)run++;else{cur=m;run=1}
+    prog.style.width=Math.min(100,run/HOLD*100)+'%';
+    if(run>=HOLD&&(best==null||(m-best)*dir>0)){best=m;sel.value=m}
+    st.textContent=best==null?'その音を少し保ってください':`記録 ${dam(best)}　${dir>0?'もっと上':'もっと下'}が出せたら続けて、無理なら声を止めてOK`};
+  // 声が途切れたフレームを数える(1.5秒で終了、最長15秒)
+  const iv=setInterval(()=>{const gap=performance.now()-last;if(gap>=250){cur=null;run=0;prog.style.width='0'}
+    if((best!=null&&gap>=1500)||performance.now()-t0>15000)finish()},100);
 }
 tuner.onclick=async()=>{if(ctx){stopMic();tuner.setAttribute('aria-pressed','false');tuner.textContent='チューナーで精度を確かめる';return}
   try{await startMic();tuner.setAttribute('aria-pressed','true');tuner.textContent='チューナーを止める'}catch(e){st.textContent='マイクが使えません：'+e.message}};

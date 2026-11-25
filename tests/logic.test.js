@@ -19,3 +19,11 @@ test('どうやっても無理な曲ははみ出し最小',()=>{const r=recommen
 test('オクターブ指定はそのまま',()=>{assert.equal(recommend(me,{low:50,high:60},{fal:false,margin:0,oct:12}).oct,12)});
 test('安定音の抽出',()=>{assert.equal(stableNote([1,2]),null);
   assert.equal(stableNote([60.1,60.2,59.9,60,60.3,61,61.2,60,59.8,60,72]),60)});
+
+const {extremeHeld}=require('../logic.js');
+test('extremeHeld: 保てた一番高い音、通過した音は無視',()=>{
+  const f=[...Array(30).fill(60),...Array(5).fill(64),...Array(30).fill(62),null,...Array(30).fill(61)];
+  assert.equal(extremeHeld(f,1,24),62);
+  assert.equal(extremeHeld(f,-1,24),60);
+  assert.equal(extremeHeld([60,61,62],1,24),null);
+});

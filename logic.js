@@ -27,4 +27,15 @@ function stableNote(hist){
   return +Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
 }
 
-if(typeof module!=='undefined')module.exports={OCT,NN,dam,toMidi,keyText,recommend,stableNote};
+// 連続フレーム列(音程 or null)から、minFrames以上続けて保てた音のうち一番端(dir=1で高い方、-1で低い方)を返す
+function extremeHeld(frames,dir,minFrames){
+  let best=null,cur=null,run=0;
+  for(const p of frames){
+    const m=p==null?null:Math.round(p);
+    if(m!=null&&m===cur)run++;else{cur=m;run=m==null?0:1}
+    if(cur!=null&&run>=minFrames&&(best==null||(cur-best)*dir>0))best=cur;
+  }
+  return best;
+}
+
+if(typeof module!=='undefined')module.exports={OCT,NN,dam,toMidi,keyText,recommend,stableNote,extremeHeld};

@@ -14,7 +14,7 @@ const fail=[];const ok=(c,msg)=>{console.log((c?'✔ ':'✖ ')+msg);if(!c)fail.p
     ok(!(await p.content()).includes('undefined'),'音名に undefined が出ない');
     ok(await p.textContent('#key')!=='—','初期表示でおすすめキーが出る');
     // 220Hz=mid2A(57)を地声最高として測る
-    await p.locator('#steps .step').nth(1).locator('button').click();
+    const bt=p.locator('#steps .step').nth(1).locator('button');await bt.click();await p.waitForTimeout(2000);await bt.click();
     await p.waitForFunction(()=>/記録しました|拾えません/.test(document.getElementById('status').textContent),null,{timeout:8000});
     const v=+await p.inputValue('#me_chestHigh');ok(v===57,`フェイクマイク220Hzを mid2A(57) と測定 → ${v}`);
     // 手入力→保存→再読み込みで残る
@@ -40,7 +40,7 @@ const fail=[];const ok=(c,msg)=>{console.log((c?'✔ ':'✖ ')+msg);if(!c)fail.p
   for(const [hz,midi] of [[98,43],[147,50],[392,67],[659,76],[880,81]]){
     const f=path.join(os.tmpdir(),`karaoke_${hz}.wav`);execFileSync('python3',[path.join(__dirname,'make_tone.py'),String(hz),f]);
     const bb=await chromium.launch({executablePath:process.env.PW_CHROME||undefined,args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream','--use-file-for-fake-audio-capture='+f]});
-    try{const pp=await bb.newPage();await pp.goto(URL);await pp.locator('#steps .step').nth(0).locator('button').click();
+    try{const pp=await bb.newPage();await pp.goto(URL);const bt=pp.locator('#steps .step').nth(0).locator('button');await bt.click();await pp.waitForTimeout(2000);await bt.click();
       await pp.waitForFunction(()=>/記録しました|拾えません/.test(document.getElementById('status').textContent),null,{timeout:8000});
       const v=+await pp.inputValue('#me_chestLow');ok(v===midi,`${hz}Hz → 期待${midi} 測定${v}`)}finally{await bb.close()}
   }
