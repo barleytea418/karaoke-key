@@ -64,6 +64,7 @@ input::placeholder{color:var(--dim)}
 .step label{font-size:12px;color:var(--mu);font-weight:700;line-height:1.4}
 .step select{font:800 20px -apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background-color:transparent;border:0;padding:0 26px 0 0;min-height:36px;background-position:right 2px center}
 .step button{min-height:40px;font-size:14px}
+.best{font-weight:800;font-size:18px;color:var(--ok);text-align:center;margin-top:4px}
 .step.rec{border-color:#0017c1;box-shadow:0 0 0 1px #0017c1;background:#e8f1fe}
 .step.rec button{animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.6}}
@@ -141,7 +142,7 @@ footer a{color:var(--mu)}
 <section aria-labelledby="h1s">
 <h2 class="sh" id="h1s"><span class="num" aria-hidden="true">1</span>自分の音域をはかる</h2>
 <p class="help">「はかる」を押したら、少しずつ音を上げて(低い音は下げて)いってください。0.4秒保てた一番端の音を記録し、声を止めると自動で終わります。</p>
-<div class="tuner" id="tunerBox"><div class="ring"><div class="note" id="now" aria-live="off">—</div></div><div class="cent" id="cent">声を出すと音名が出ます</div><div class="meter" aria-hidden="true"><i id="vol"></i></div><div class="meter" aria-hidden="true"><i id="prog" style="background:var(--ok)"></i></div></div>
+<div class="tuner" id="tunerBox"><div class="ring"><div class="note" id="now" aria-live="off">—</div></div><div class="cent" id="cent">声を出すと音名が出ます</div><div class="best" id="bestEl" hidden></div><div class="meter" aria-hidden="true"><i id="vol"></i></div><div class="meter" aria-hidden="true"><i id="prog" style="background:var(--ok)"></i></div></div>
 <div class="steps" id="steps"></div>
 <p class="status" id="status" aria-live="polite"></p>
 <div class="row tools"><button class="sec" id="tuner" aria-pressed="false">チューナーで確かめる</button><button class="sec" id="resetMe" type="button">初期値に戻す</button></div>
@@ -245,15 +246,15 @@ async function measure(k,sel,row,btn){
   st.textContent=dir>0?'低めから少しずつ上げて、出なくなったら声を止めてください':'高めから少しずつ下げて、出なくなったら声を止めてください';
   try{await startMic()}catch(e){st.textContent='マイクが使えません：'+e.message;row.classList.remove('rec');return}
   let best=null,cur=null,run=0,last=performance.now();const t0=performance.now();
-  btn.textContent='止める';
-  const finish=()=>{onPitch=null;stopNow=null;clearInterval(iv);
+  btn.textContent='止める';bestEl.hidden=false;bestEl.textContent=dir>0?'↑ 少しずつ上げて':'↓ 少しずつ下げて';
+  const finish=()=>{onPitch=null;stopNow=null;clearInterval(iv);bestEl.hidden=true;
     row.classList.remove('rec');btn.textContent='はかる';prog.style.width='0';
     if(best==null){st.textContent='声を拾えませんでした。もう少し大きく、1音を少し長めに出してください';return}
     me[k]=best;sel.value=best;save();calc();st.textContent=`${dam(best)} を記録しました`};
   stopNow=finish;
   onPitch=p=>{last=performance.now();const m=Math.round(p);if(m===cur)run++;else{cur=m;run=1}
     prog.style.width=Math.min(100,run/HOLD*100)+'%';
-    if(run>=HOLD&&(best==null||(m-best)*dir>0)){best=m;sel.value=m}
+    if(run>=HOLD&&(best==null||(m-best)*dir>0)){best=m;sel.value=m;bestEl.textContent=`記録 ${dam(best)}　${dir>0?'↑':'↓'}いけたら続けて`}
     st.textContent=best==null?'その音を少し保ってください':`記録 ${dam(best)}　${dir>0?'もっと上':'もっと下'}が出せたら続けて、無理なら声を止めてOK`};
   // 声が途切れたフレームを数える(1.5秒で終了、最長15秒)
   const iv=setInterval(()=>{const gap=performance.now()-last;if(gap>=250){cur=null;run=0;prog.style.width='0'}
